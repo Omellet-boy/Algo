@@ -1,2 +1,3 @@
 # Algo
 CCP6214 Algorithm Design and Analysis
+If you are team Java, make a Team Java Folder and add the code inside it, some for Team C++
