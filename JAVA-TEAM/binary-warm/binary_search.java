@@ -52,6 +52,11 @@ public class binary_search {
         }
 
         int n = data.size();
+
+        Random rng = new Random();
+        for (int i = 0; i < 100; i++) {
+            binarySearch(data, data.get(rng.nextInt(n)).number);
+        }
         
         // Best case
         int midIndex = n / 2;
@@ -62,7 +67,6 @@ public class binary_search {
         double bestTime = (end - start) / 1000.0;
 
         // Average case
-        Random rng = new Random();
         double totalAvgTime = 0;
         int trials = n / 2;
         for (int i = 0; i < trials; ++i) {
