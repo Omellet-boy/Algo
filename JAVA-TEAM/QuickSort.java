@@ -1,7 +1,7 @@
+import java.io.*;
 import java.util.*;
 
 public class QuickSort {
-
     static class Record {
         int number;
         String word;
@@ -44,51 +44,50 @@ public class QuickSort {
         arr.set(b, temp);
     }
 
-    private static List<Record> generateTestData(int n) {
-        Random rand = new Random();
-        List<Record> records = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            int num = 1_000_000_000 + rand.nextInt(1_147_483_647);
-            String word = randomWord(rand, 5 + rand.nextInt(3));
-            records.add(new Record(num, word));
+    private static List<Record> readDataset(String filename) throws IOException {
+        List<Record> data = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",", 2);
+                data.add(new Record(Integer.parseInt(parts[0]), parts[1]));
+            }
         }
-        return records;
+        return data;
     }
 
-    private static String randomWord(Random rand, int length) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            sb.append((char) ('a' + rand.nextInt(26)));
+    private static void writeSortedFile(String filename, List<Record> data) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Record r : data) {
+                writer.write(r.number + "," + r.word);
+                writer.newLine();
+            }
         }
-        return sb.toString();
     }
 
     public static void main(String[] args) {
-        int[] sizes = {
-            100_000,        // 100 thousand
-            200_000, 
-            500_000, 
-            1_000_000,      // 1 million
-            2_000_000, 
-            5_000_000, 
-            10_000_000,     // 10 million
-            20_000_000, 
-            50_000_000, 
-            100_000_000     // 100 million
-        };
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter dataset filename to sort (e.g., dataset_100000.csv): ");
+        String inputFilename = scanner.nextLine();
+        
+        // Generate output filename based on input
+        String outputFilename = "sorted_" + inputFilename;
 
-        for (int n : sizes) {
-            // Generate test data in memory
-            List<Record> data = generateTestData(n);
-
-            // Quick sort and measure time
+        try {
+            List<Record> data = readDataset(inputFilename);
+            
             long start = System.nanoTime();
             quickSort(data);
             long end = System.nanoTime();
-
-            // Print running time in milliseconds
-            double timeMs = (end - start) / 1_000_000.0;
-            System.out.printf("QuickSort - Dataset Size: %d -> Time: %.3f ms\n", n, timeMs);
+            
+            writeSortedFile(outputFilename, data);
+            
+            System.out.printf("Sorted %d records in %.3f ms\n", 
+                           data.size(), (end - start)/1_000_000.0);
+            System.out.println("Sorted output saved to: " + outputFilename);
+            
+        } catch (IOException e) {
+            System.err.println("Error processing file: " + e.getMessage());
         }
     }
 }
