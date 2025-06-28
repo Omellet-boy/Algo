@@ -18,9 +18,10 @@ public class QuickSortStep {
         }
     }
 
-    private static void writeStep(List<Record> data, BufferedWriter writer) throws IOException {
+    private static void writeStep(List<Record> data, BufferedWriter writer, String label) throws IOException {
+        writer.write(label + ": ");
         for (Record item : data) {
-            writer.write(item.number + "," + item.word + " ");
+            writer.write(item.toString() + " ");
         }
         writer.newLine();
     }
@@ -29,15 +30,27 @@ public class QuickSortStep {
         Record pivot = arr.get(high);
         int i = low - 1;
 
+        writer.write("\nPartitioning indices " + low + "-" + high + " (pivot: " + pivot.number + ")");
+        writer.newLine();
+
         for (int j = low; j < high; j++) {
             if (arr.get(j).number <= pivot.number) {
                 i++;
-                swap(arr, i, j);
+                if (i != j) {
+                    writer.write("  Swap " + i + "↔" + j + ": " + arr.get(i) + " ↔ " + arr.get(j));
+                    writer.newLine();
+                    swap(arr, i, j);
+                }
             }
         }
-        swap(arr, i + 1, high);
+        
+        if (i + 1 != high) {
+            writer.write("  Place pivot: " + (i + 1) + "↔" + high + ": " + arr.get(i + 1) + " ↔ " + arr.get(high));
+            writer.newLine();
+            swap(arr, i + 1, high);
+        }
 
-        writeStep(arr.subList(low, high + 1), writer);
+        writeStep(arr.subList(low, high + 1), writer, "  After partition");
         return i + 1;
     }
 
@@ -70,7 +83,7 @@ public class QuickSortStep {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         
-        System.out.print("Enter input filename (e.g., dataset_sample_1000.csv): ");
+        System.out.print("Enter input filename (e.g., dataset_100.csv): ");
         String inputFile = scanner.next();
         System.out.print("Enter start row (1-based): ");
         int startRow = scanner.nextInt();
@@ -80,19 +93,16 @@ public class QuickSortStep {
         List<Record> data;
         try {
             data = readCSV(inputFile);
-            // Adjust for 1-based to 0-based index
-            List<Record> subList = data.subList(startRow-1, endRow);
+            List<Record> subList = new ArrayList<>(data.subList(startRow-1, endRow));
             
             String outFileName = "quick_sort_step_" + startRow + "_" + endRow + ".txt";
             BufferedWriter writer = new BufferedWriter(new FileWriter(outFileName));
             
-            writer.write("Initial data:\n");
-            writeStep(subList, writer);
+            writeStep(subList, writer, "Initial data");
 
             quickSort(subList, 0, subList.size()-1, writer);
 
-            writer.write("Final sorted data:\n");
-            writeStep(subList, writer);
+            writeStep(subList, writer, "\nFinal sorted data");
             
             writer.close();
             System.out.println("Quick sort steps saved to " + outFileName);
