@@ -20,10 +20,18 @@ public class QuickSortStep {
 
     private static void writeStep(List<Record> data, BufferedWriter writer, String label) throws IOException {
         writer.write(label + ": ");
-        for (Record item : data) {
-            writer.write(item.toString() + " ");
+        if (label.equals("\nFinal sorted data")) {
+            writer.newLine();
+            for (Record item : data) {
+                writer.write("  " + item.toString());
+                writer.newLine();
+            }
+        } else {
+            for (Record item : data) {
+                writer.write(item.toString() + " ");
+            }
+            writer.newLine();
         }
-        writer.newLine();
     }
 
     private static int partition(List<Record> arr, int low, int high, BufferedWriter writer) throws IOException {
